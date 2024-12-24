@@ -1,0 +1,7 @@
+chime
+h5py
+kaleido
+numpy
+pandas
+plotly
+PySide6
