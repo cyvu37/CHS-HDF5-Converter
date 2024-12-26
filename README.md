@@ -1,4 +1,4 @@
-![CHS HDF5 Converter logo](resources/CHS%20HDF5%20Converter%20logo%202.png)
+<p align="center"><img src="resources/CHS%20HDF5%20Converter%20logo%202.png" alt="drawing" width="200"/></p>
 
 # About
 The **CHS HDF5 Converter** is a StormSim program in Python for converting HDF5 files from the [Coastal Hazards System](https://chs.erdc.dren.mil/Home/Library) (CHS) database into a table/CSV format (aka a dataset) while preserving some, but not all, of the original file's metadata. There are two versions labeled the Command Line (CMD) version and the GUI version. [The CMD version](#the-cmd-version) converts a single HDF5 file to a CSV file (or more) directly from the command line. [The GUI version](#the-gui-version) allows many more functions such as previewing, filtering, and plotting multiple HDF5 files. All CSV files produced by the app will be saved in the same folder as the program's Python files.
