@@ -1,13 +1,17 @@
 <p align="center"><img src="resources/CHS%20HDF5%20Converter%20logo%202.png" alt="drawing" width="200"/></p>
 
 # About
-The **CHS HDF5 Converter** is a StormSim program in Python for converting HDF5 files from the [Coastal Hazards System](https://chs.erdc.dren.mil/Home/Library) (CHS) database into a table/CSV format (aka a dataset) while preserving some, but not all, of the original file's metadata. There are two versions labeled the Command Line (CMD) version and the GUI version. [The CMD version](#the-cmd-version) converts a single HDF5 file to a CSV file (or more) directly from the command line. [The GUI version](#the-gui-version) allows many more functions such as previewing, filtering, and plotting multiple HDF5 files. All CSV files produced by the app will be saved in the same folder as the program's Python files.
+The **CHS HDF5 Converter** is a StormSim program in a Python GUI for converting HDF5 files from the [Coastal Hazards System](https://chs.erdc.dren.mil/Home/Library) (CHS) database into a table/CSV format (aka a dataset) while preserving some, but not all, of the original file's metadata. There are two methods labeled the Command Line (CMD) method and the GUI method. [The CMD method](#the-cmd-method) converts a single HDF5 file to a CSV file (or more) directly from the command line. [The GUI method](#the-gui-method) allows many more functions such as previewing, filtering, and plotting multiple HDF5 files. All CSV files produced by the app will be saved in the same directory as the program's Python files.
 
 
 # Installation
-1. **Download Files**: Assign a folder specifically for the files of this application (ex. `C:\Users\Cyvu37\Documents\CHS_HDF5_Converter`). 
-    * Make sure the parent directory of the program folder (ex. `C:\Users\Cyvu37\Documents`) doesn't require administrator access. Converting HDF5 files requires creating a temporary subdirectory *Extracted*.
-1. **Local Python**: Make sure the local Python version is Python 3.11 or later.
+1. **Compatible Operating Systems**: Successful testing on Windows 10/11 and macOS. Untested for Linux.
+1. **Python Interpreter & Environment**
+    * Compatible versions: 3.11, 3.12, 3.13
+    * This documentation will assume the Python CMD call function is `python`.
+1. **Download Files**: Assign a directory specifically for the files of this program (ex. `C:\Users\Cyvu37\Documents\CHS_HDF5_Converter`). 
+    * Make sure the parent directory of the program directory (ex. `C:\Users\Cyvu37\Documents`) doesn't require administrator access. Converting HDF5 files requires creating a temporary subdirectory *Extracted*.
+    * Processing power may vary based on the directory's location.
 1. **Install Packages**
     * Option 1: Auto-install packages by running the GUI: `python begin.py`.
     * Option 2: Run `python -m pip install -r requirements.txt`.
@@ -16,7 +20,7 @@ The **CHS HDF5 Converter** is a StormSim program in Python for converting HDF5 f
 # Export vs Import
 When the program processes an HDF5 file, it "converts" the data to a dataset in a table format. From there, the program can "export" and/or "import" the dataset. "Exporting" a dataset means to save the dataset as a CSV file (CSV & GUI). "Importing" a dataset means to bring the dataset to the Data Viewer tabs (GUI only). 
 
-In the GUI version, a user can "export" and "import" the same HDF5 file. This does not mean the program will "convert" the data twice. This means the CSV file will be produced ("exported") and the dataset will be available for preview in the Data Viewer tabs ("imported").
+In the GUI method, a user can "export" and "import" the same HDF5 file. This does not mean the program will "convert" the data twice. This means the CSV file will be produced ("exported") and the dataset will be available for preview in the Data Viewer tabs ("imported").
 
 
 # Compatible File Types
@@ -32,7 +36,7 @@ The CHS database is extensive and diverse, but each filename has 7 identifiers s
 
 The examples listed above yield the filename `CHS-LA_TS_SimBrfc_Post0_Nodes_Hm0_AEF.h5`.
 
-As of December 2024, the following identifiers are compatible with the corresponding functions. For example, any filename with `Post0` in ID #4 (`X_X_X_Post0_X_X_X.h5`) can be imported to the GUI for preview and filtering ("Import & Export"), but any filename with `Post96RT` in ID #4 (`X_X_X_Post96RT_X_X_X.h5`) can only be exported as a CSV file ("Export Only"). NOTE: There are some problems with importing certain files on macOS, but they can still be exported.
+As of December 2024, the following identifiers are compatible with the corresponding functions. For example, any filename with `Post0` in ID #4 (`X_X_X_Post0_X_X_X.h5`) can be imported to the GUI for preview and filtering ("Import & Export"), but any filename with `Post96RT` in ID #4 (`X_X_X_Post96RT_X_X_X.h5`) can only be exported as a CSV file ("Export Only"). **NOTE**: There are some problems with importing certain files on macOS, but they can still be exported. You can submit an issue.
 
 ID # | Import & Export | Export Only
 :----|:---------------------------------------------------------------------------|:---------------------
@@ -49,7 +53,7 @@ ID # | Import & Export | Export Only
 In the Qualifying Files group of the Convert tab, the GUI will auto-remove checkboxes for files that cannot be imported to the GUI.
 
 
-# The CMD Version
+# The CMD Method
 This exports one HDF5 file into one or more CSV files from the command line.
 
 * Requirements
@@ -70,8 +74,8 @@ This exports one HDF5 file into one or more CSV files from the command line.
     * No filtering or plotting capabilities.
 
 
-# The GUI Version
-Handles all features of the program, including exporting, previewing, filtering, and graphing HDF5 files. Some features only apply to specific file types. Features are listed [here](#features-of-data-viewer).
+# The GUI Method
+This handles all features of the program, including exporting, previewing, filtering, and graphing HDF5 files. Some features only apply to specific file types. Features are listed [here](#features-of-data-viewer).
 
 * Requirements
     * All files from this project.

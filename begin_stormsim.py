@@ -94,7 +94,7 @@ import numpy as np
 import pandas as pd
 
 # Import Python files
-from code01_h5organize import H5_Organized, H5_Organized_New # DEV NOTE: Compare to see what works in macOS.
+from code01_h5organize import H5_Organized_New
 from gui01_ui_stormsim import Ui_MainWindow
 
 
@@ -134,6 +134,8 @@ class SecondThread(QThread):
             if isinstance(fpath, list):
                 fpath = ";".join(fpath)
                 has_zip = True
+            print(fname)
+            print(fpath)
             self.filename = fname.split(".")[0].split("/")[-1]
 
             self.h5 = None
@@ -143,7 +145,7 @@ class SecondThread(QThread):
             self.process.stateChanged.connect( partial(self.process_state, i+1) )
             self.process.finished.connect( partial(self.process_finished, i+1) )
             self.process.setProgram( str(sys.executable) )
-            self.process.setArguments( ['-u', f'{DIR_PROGRAM}{os.sep}code01_h5organize.py', str(fpath), str(int(not task == 0))] )
+            self.process.setArguments( ['-u', f'{DIR_PROGRAM}{os.sep}code01_h5organize.py', "1", str(int(not task == 0)), str(fpath)] )
             self.timestamp = time.time()
             self.process.start()
             self.process.waitForFinished(-1)
@@ -341,10 +343,6 @@ class StormSim_Converter(Ui_MainWindow):
         self.style_font_btn_bold.setBold(True)
         self.style_font_btn_bold.setUnderline(False)
 
-        # Set box sizes for "Filter" group
-        #self.filter_box_big = self.groupBox_27.geometry()
-        #self.plot_box_small = QRect(20, 360, 621, 221)
-
         # Reset widgets
         # > Convert tab
         self.pushButton_1.setEnabled(False)
@@ -367,15 +365,6 @@ class StormSim_Converter(Ui_MainWindow):
         self.tabWidget_2.setEnabled(False)
         self.statusBar.showMessage( "Import > Ready to import HDF5/ZIP files with \"Browse.\"" )
 
-        # Reset QWebEngineView object to stop output.
-        #web_engine_context_log = QLoggingCategory("qt.webenginecontext")
-        #web_engine_context_log.setFilterRules("*.info=false")
-        #QLoggingCategory("qt.webenginecontext").setFilterRules("*.info=false")
-        #self.webEngineView = QWebEngineView()
-
-        # Bind universal commands
-        #self.tabWidget.currentChanged.connect( self.func_sync_tabs_from_left )
-
         # Convert tab > Bind commands
         self.pushButton_2.clicked.connect( self.func_CONVERT_browse_files )
         self.tableWidget.cellChanged.connect( self.func_CONVERT_table_cellChanged )
@@ -386,7 +375,6 @@ class StormSim_Converter(Ui_MainWindow):
 
         # Data Viewer (left) > Bind commands
         self.listWidget.itemClicked.connect( self.func_DV_change_dataset )
-        #self.tabWidget_4.currentChanged.connect( self.func_DV_choose_mode_from_left ) # ARCHIVE
         # "Table" tab
         self.pushButton_81.clicked.connect( self.func_DVtable_export_current )
         self.pushButton_79.clicked.connect( self.func_DVtable_export_full )
@@ -396,9 +384,7 @@ class StormSim_Converter(Ui_MainWindow):
         self.comboBox_27.currentIndexChanged.connect( self.func_DVtable_change_var )
         self.comboBox_62.currentTextChanged.connect( self.func_DVtable_change_stormID )
         self.dateTimeEdit_19.dateTimeChanged.connect( self.func_DVtable_check_datetime )
-        #self.dateTimeEdit_19.setTimeSpec(Qt.TimeSpec.UTC)
         self.dateTimeEdit_20.dateTimeChanged.connect( self.func_DVtable_check_datetime )
-        #self.dateTimeEdit_20.setTimeSpec(Qt.TimeSpec.UTC)
         self.doubleSpinBox_12.valueChanged.connect( self.func_DVtable_check_magnitude )
         self.doubleSpinBox_11.valueChanged.connect( self.func_DVtable_check_magnitude )
         # "Graph" tab
@@ -409,9 +395,7 @@ class StormSim_Converter(Ui_MainWindow):
         self.pushButton_85.clicked.connect( self.func_DVplot_add_stormID )
         self.pushButton_83.clicked.connect( self.func_DVplot_clear_stormIDs )
         self.dateTimeEdit_21.dateTimeChanged.connect( self.func_DVplot_check_daterange )
-        #self.dateTimeEdit_21.setTimeSpec(Qt.TimeSpec.UTC)
         self.dateTimeEdit_22.dateTimeChanged.connect( self.func_DVplot_check_daterange )
-        #self.dateTimeEdit_22.setTimeSpec(Qt.TimeSpec.UTC)
         self.pushButton_84.clicked.connect( self.func_DVplot_reset_daterange )
 
         print("Done!\n\n\n")
@@ -454,36 +438,12 @@ class StormSim_Converter(Ui_MainWindow):
         btn.setStyleSheet( self.style_btn_normal )
         btn.setFont( self.style_font_btn_norm )
         btn.setEnabled( False )
-    
-
-    #
-    # GUI Action: Left panel's tabs sync with right panel's tabs.
-    #
-    """def func_sync_tabs_from_left(self):
-        self.tabWidget_2.setCurrentIndex( 0 if self.tabWidget.currentIndex() == 0 else self.tabWidget.currentIndex() - 1 )"""
-    
-
-    #
-    # GUI Action: Right panel's tabs sync with left panel's tabs.
-    #
-    """def func_sync_tabs_from_right(self):
-        self.tabWidget.setCurrentIndex( self.tabWidget_2.currentIndex() + 1 )"""
-    
-
-    #
-    # GUI Action: Disable or enable entire app.
-    #
-    """def func_setEnabled(self, b):
-        self.tabWidget.setEnabled(b)"""
 
     
     def func_Q_to_d(self, dt: QDateTimeEdit) -> np.ndarray[pd.Timestamp]:
         """
         Convert a PySide6 `QDateTime` object to a Pandas `Timestamp` object. For datetime processing.
         """
-        """with simplefilter("ignore", category=FutureWarning):    # pd.Series.dt.to_pydatetime
-            x = np.array( pd.to_datetime( dt.dateTime().toPython(), utc=True ) )
-        return x"""
         return np.array( pd.Timestamp( dt.dateTime().toString("yyyy-MM-ddTHH:mm:ss.zzzZ") ) )
 
 
@@ -916,20 +876,6 @@ class StormSim_Converter(Ui_MainWindow):
             self.doubleSpinBox_11.setEnabled(False)
             self.dateTimeEdit_21.setEnabled(False)
             self.dateTimeEdit_22.setEnabled(False)
-            """# Import (left) > "Table" tab > Disable
-            self.pushButton_81.setEnabled(False)
-            self.pushButton_79.setEnabled(False)
-            # Import (left) > "Table" tab > "Filter" group > Disable
-            self.pushButton_39.setEnabled(False)
-            self.pushButton_57.setEnabled(False)
-            self.comboBox_27.setEnabled(False)
-            self.comboBox_62.setEnabled(False)
-            self.dateTimeEdit_19.setEnabled(False)
-            self.dateTimeEdit_20.setEnabled(False)
-            self.doubleSpinBox_12.setEnabled(False)
-            self.doubleSpinBox_11.setEnabled(False)
-            # Import (left) > "Graph" tab
-            self.tabWidget_4.setTabEnabled(1, False)"""
             # Filter out unused datasets.
             for f in self.list_to_not_import:
                 if "AEF" in f:
@@ -947,18 +893,8 @@ class StormSim_Converter(Ui_MainWindow):
             s_list = sorted( list(self.dict3_name_to_h5.keys()) )
             self.listWidget.addItems(s_list)
             self.groupBox_32.setTitle(f"Dataset ({len(s_list)})")
-            """self.is_resetting_vars = True
-            len_keys = len(s_list)
-            if len_keys > 20:
-                self.comboBox_62.setEditable(True)
-                self.comboBox_62.insertItems( 20, [*s_list[:19], "-- Type for more --"] )
-                self.comboBox_62.setCompleter( QCompleter(s_list, self.window) )
-            else:
-                self.comboBox_62.insertItems( len_keys, s_list )
-            self.is_resetting_vars = False"""
             self.is_changing_databases = False
             # Data Viewer (left) > If time series data is not available, then don't enable option to plot for time series data
-            #self.comboBox_62.setCurrentIndex(0) # BUG FIX: Can't be close to insertItems for some reason.
             # Set state
             self.state_2x1_converted = True
             self.statusBar.showMessage( "Data Viewer > Table > Success! Observe + export data with Data Viewer." )
@@ -1009,14 +945,6 @@ class StormSim_Converter(Ui_MainWindow):
             self.state_1x3_running = False
             self.state_1x2A_imported = True
             self.statusBar.showMessage( "Import > Aborted. Ready to run! Other optoins available." )
-    
-
-    #
-    # [ARCHIVE] Data Viewer (left) > Properties group > "?" button
-    #
-    """def func_DV_tooltip_for_pushButton_103(self):
-        txt = "Click on a name to change the dataset on the right tab and the settings on the Table and "Graph" tabs. Once clicked, loading may take a little while."
-        msgBox = QMessageBox.information( self.window, "Selecting a Dataset", txt, QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok )"""
     
 
     
@@ -1168,11 +1096,6 @@ class StormSim_Converter(Ui_MainWindow):
 
             # Set status.
             self.statusBar.showMessage( "Data Viewer" )
-            """if self.tabWidget_4.currentIndex() == 0:
-                self.statusBar.showMessage( "Data Viewer > Table" )
-            else:
-                #txt = " and a Storm ID." if self.h5.is_timeseries else "."
-                self.statusBar.showMessage( "Data Viewer > Plot" ) #> Please select a Variable" + txt )"""
     
 
     
@@ -1214,30 +1137,6 @@ class StormSim_Converter(Ui_MainWindow):
         self.is_resetting_vars = False
     
 
-    #
-    # [ARCHIVE] Data Viewer > Right panel's tabs sync with left panel's tabs
-    #
-    """def func_DV_choose_mode_from_left(self):
-        # Set status
-        if self.tabWidget_4.currentIndex() == 0:
-            self.statusBar.showMessage( "Data Viewer > Table" )
-        else:
-            txt = " and a Storm ID." if self.dict3_name_to_h5[self.comboBox_62.currentText()].is_timeseries else "."
-            self.statusBar.showMessage( "Data Viewer > Graph > Please select a Variable" + txt )"""
-    
-
-    #
-    # [ARCHIVE] Data Viewer > Left panel's tabs sync with right panel's tabs
-    #
-    """def func_DV_choose_mode_from_right(self):
-        # Set status
-        if self.tabWidget_4.currentIndex() == 0:
-            self.statusBar.showMessage( "Data Viewer > Table" )
-        else:
-            txt = " and a Storm ID." if self.dict3_name_to_h5[self.comboBox_62.currentText()].is_timeseries else "."
-            self.statusBar.showMessage( "Data Viewer > Graph > Please select a Variable" + txt )"""
-    
-
     
     def func_DVtable_export_current(self):
         """
@@ -1250,7 +1149,6 @@ class StormSim_Converter(Ui_MainWindow):
         if self.h5.is_timeseries and self.is_stormid_applied: # If a storm ID is applied, not simply chosen.
             dataset_name += "_StormID_" + self.comboBox_62.currentText()
         self.h5.get_data_current().to_csv(dataset_name + ".csv", index=False)
-        #self.statusBar.showMessage( "Data Viewer > Table > Current dataset exported!" )
     
 
     
@@ -1262,7 +1160,6 @@ class StormSim_Converter(Ui_MainWindow):
         """
         self.h5.export_csv()
         self.pushButton_79.setEnabled(False) # Disable "Full" button
-        #self.statusBar.showMessage( "Data Viewer > Table > Full dataset exported!" )
     
 
     #
@@ -1370,13 +1267,6 @@ class StormSim_Converter(Ui_MainWindow):
         self.dateTimeEdit_20.setEnabled(False)
         self.dateTimeEdit_20.setDateTimeRange(QDateTime(1999,1,1,0,0,0), QDateTime(2001,1,1,0,0,0))
         self.dateTimeEdit_20.setDateTime(QDateTime(2000,1,1,0,0,0))
-        # Data Viewer (left) > "Graph" tab > "Filter" group > Reset "Date Range"
-        """if "yyyymmddHHMM" in self.var_min_max.keys():
-            min, max = self.var_min_max["yyyymmddHHMM"]
-            self.dateTimeEdit_21.setDateTimeRange(QDateTime(1999,1,1,0,0,0), QDateTime(2001,1,1,0,0,0))
-            self.dateTimeEdit_21.setDateTime(QDateTime(2000,1,1,0,0,0))
-            self.dateTimeEdit_22.setDateTimeRange(QDateTime(1999,1,1,0,0,0), QDateTime(2001,1,1,0,0,0))
-            self.dateTimeEdit_22.setDateTime(QDateTime(2000,1,1,0,0,0))"""
         # Data Viewer (left) > "Table" tab > "Filter" group > Reset "Magnitude Range"
         self.doubleSpinBox_12.setEnabled(False)
         self.doubleSpinBox_12.setRange(-1, 1)
@@ -1414,7 +1304,7 @@ class StormSim_Converter(Ui_MainWindow):
 		"""
         txt = ("*Export Table > Full*: Exports the whole dataset. Available at all times.\n\n"
                + "*Export Table > Current*: Exports the filtered or abridged state of the dataset.\n\n"
-               + "*Filter section*: Filter by Storm ID (only for Timeseries data), magnitude range, or date range. Listed variables have magnitude or date ranges. Adding a filter recalculates each variable range.\n\n"
+               + "*Filter section*: Filter by magnitude range, date range, or Storm ID (only for Timeseries data). Press Tab or click on another range to process your input.\n\n"
                + "*Add*: Disabled when range is already at min/max or no Storm ID is selected.\n\n"
                + "*Clear All*: Reverts dataset & variable ranges back to initial state.")
         msgBox = QMessageBox.information( self.window, 
@@ -1474,8 +1364,6 @@ class StormSim_Converter(Ui_MainWindow):
                     self.dateTimeEdit_19.setDateTime(QDateTime(2000,1,1,0,0,0))
                     self.dateTimeEdit_20.setDateTimeRange(QDateTime(1999,1,1,0,0,0), QDateTime(2001,1,1,0,0,0))
                     self.dateTimeEdit_20.setDateTime(QDateTime(2000,1,1,0,0,0))
-                #s2 = " Active filters: " + ", ".join(self.dataset_filters) if len(self.dataset_filters) > 0 else " No active filters."
-                #self.statusBar.showMessage( "Data Viewer > Table > Not able to filter yet." + s2 )
             else:
                 # Reset "Magnitude Range for Variable"
                 self.doubleSpinBox_12.setRange(-1, 1)
@@ -1488,12 +1376,9 @@ class StormSim_Converter(Ui_MainWindow):
                 self.dateTimeEdit_20.setDateTimeRange(QDateTime(1999,1,1,0,0,0), QDateTime(2001,1,1,0,0,0))
                 self.dateTimeEdit_20.setDateTime(QDateTime(2000,1,1,0,0,0))
                 # Check "Storm ID"
-                #s2 = " Active filters: " + ", ".join(self.dataset_filters) if len(self.dataset_filters) > 0 else " No active filters."
                 if self.comboBox_62.currentText() != self.comboBox_62.placeholderText():
                     cond = self.comboBox_62.currentText() in self.stormIDs
                     self.pushButton_39.setEnabled( cond )
-                    #s1 = "Data Viewer > Table > Ready to filter by Storm ID!" if cond else "Data Viewer > Table > Not able to filter yet."
-                    #self.statusBar.showMessage( s1 + s2 )
                 else:
                     pass
                     #self.statusBar.showMessage( "Data Viewer > Table > Not able to filter yet." + s2 )
@@ -1510,11 +1395,6 @@ class StormSim_Converter(Ui_MainWindow):
         if not self.is_resetting_vars:
             cond = self.comboBox_62.currentText() in self.stormIDs
             self.pushButton_39.setEnabled( cond )
-            """# Sync with "Storm ID" in "Graph" tab
-            if cond: self.comboBox_63.setCurrentText( self.comboBox_62.currentText() )"""
-            """s1 = "Data Viewer > Table > Ready to filter by Storm ID!" if cond else "Data Viewer > Table > Not able to filter yet."
-            s2 = " Active filters: " + ", ".join(self.dataset_filters) + "." if len(self.dataset_filters) > 0 + else " No active filters."
-            self.statusBar.showMessage( s1 + s2 )"""
     
 
     
@@ -1538,9 +1418,6 @@ class StormSim_Converter(Ui_MainWindow):
                 self.dateTimeEdit_22.setDateTimeRange(min, max)
                 self.dateTimeEdit_22.setDateTime(max)
                 self.will_apply_date = cond
-            """s1 = "Data Viewer > Table > Ready to filter by date-time!" if cond else "Data Viewer > Table > Not able to filter yet."
-            s2 = " Active filters: " + ", ".join(self.dataset_filters) + "." if len(self.dataset_filters) > 0 else " No active filters."
-            self.statusBar.showMessage( s1 + s2 )"""
     
 
     
@@ -1556,9 +1433,6 @@ class StormSim_Converter(Ui_MainWindow):
             max = self.doubleSpinBox_11.value()
             self.will_apply_mag = bool((min > min_lim or max < max_lim) and min < max)
             self.pushButton_39.setEnabled( self.will_apply_mag )
-            """s1 = "Data Viewer > Table > Ready to filter by variable!" if cond else "Data Viewer > Table > Not able to filter yet."
-            s2 = " Active filters: " + ", ".join(self.dataset_filters) + "." if len(self.dataset_filters) > 0 else " No active filters."
-            self.statusBar.showMessage( s1 + s2 )"""
     
 
     #
@@ -1627,9 +1501,6 @@ class StormSim_Converter(Ui_MainWindow):
                                  image_filename= f"{title}.png",
                                  auto_open = False)
             os.replace(f"{DIR_PROGRAM}{os.sep}{title}.html", f"{DIR_RESUTLS}{os.sep}{title}.html")
-            """raw_html = ('<html><head><meta charset="utf-8" />' + 
-                        '<script src="https://cdn.plot.ly/plotly-latest.min.js"></script></head>' + 
-                        '<body>' + fig_output + '</body></html>')"""
             x = Popen( [open_directory, DIR_RESUTLS] )
             time.sleep(1)
             x.kill()
@@ -1639,7 +1510,6 @@ class StormSim_Converter(Ui_MainWindow):
             # Change state
             self.state_2x2A_justplot = True
             self.state_2x2B_aplot = True
-            #self.statusBar.showMessage( "Data Viewer > Graph > Plotting successful!" ) # Set status
             chime.success()
     
 
