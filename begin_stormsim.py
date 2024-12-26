@@ -778,7 +778,7 @@ class StormSim_Converter(Ui_MainWindow):
         # Reiterate the checklist
         txt = "Are you sure you want to perform the following tasks?"
         if self.task_checklist[1]:
-            txt += " You won't be able to export/import any more files."
+            txt += " You won't be able to export/import any more files!"
         txt += "\n\n"
         if self.task_checklist[1]:
             txt += "- Export a file to CSV\n" if len(self.track_export) == 1 else "- Export files to CSV\n"

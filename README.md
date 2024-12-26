@@ -1,7 +1,7 @@
 <p align="center"><img src="resources/CHS%20HDF5%20Converter%20logo%202.png" alt="drawing" width="200"/></p>
 
 # About
-The **CHS HDF5 Converter** is a StormSim program in a Python GUI for converting HDF5 files from the [Coastal Hazards System](https://chs.erdc.dren.mil/Home/Library) (CHS) database into a table/CSV format (aka a dataset) while preserving some, but not all, of the original file's metadata. There are two methods labeled the Command Line (CMD) method and the GUI method. [The CMD method](#the-cmd-method) converts a single HDF5 file to a CSV file (or more) directly from the command line. [The GUI method](#the-gui-method) allows many more functions such as previewing, filtering, and plotting multiple HDF5 files. All CSV files produced by the app will be saved in the same directory as the program's Python files.
+The **CHS HDF5 Converter** is a Python GUI for converting HDF5 files from the [Coastal Hazards System](https://chs.erdc.dren.mil/Home/Library) (CHS) database into a table/CSV format (aka a dataset) while preserving some, but not all, of the original file's metadata. There are two methods labeled the Command Line (CMD) method and the GUI method. [The CMD method](#the-cmd-method) converts HDF5 and ZIP files directly from the command line, including folders containing HDF5 files. [The GUI method](#the-gui-method) allows many more functions such as previewing, filtering, and plotting multiple HDF5 files. All CSV files produced by the app will be saved in the directory above the program's Python files.
 
 
 # Installation
@@ -17,10 +17,16 @@ The **CHS HDF5 Converter** is a StormSim program in a Python GUI for converting 
     * Option 2: Run `python -m pip install -r requirements.txt`.
 
 
-# Export vs Import
-When the program processes an HDF5 file, it "converts" the data to a dataset in a table format. From there, the program can "export" and/or "import" the dataset. "Exporting" a dataset means to save the dataset as a CSV file (CSV & GUI). "Importing" a dataset means to bring the dataset to the Data Viewer tabs (GUI only). 
+# The GUI
 
-In the GUI method, a user can "export" and "import" the same HDF5 file. This does not mean the program will "convert" the data twice. This means the CSV file will be produced ("exported") and the dataset will be available for preview in the Data Viewer tabs ("imported").
+
+
+# Export vs Import
+When the program processes an HDF5 file, it reorganizes the data within the HDF5 file into a table-formatted dataset. From there, the program can "export" and/or "import" the dataset. "Exporting" a dataset means to save the dataset as a CSV file (CSV & GUI methods). "Importing" a dataset means to bring the dataset to the Data Viewer tabs (GUI method only). 
+
+In the GUI method, a user can "export" and "import" the same HDF5 file. This means the program will produce the CSV file ("exported") and "import" the dataset in the Data Viewer tabs ("imported"), not that the program will "convert" the data twice.
+
+In the current version, the Import tab will be permanently disabled once a user "imports" a dataset or more into the program. It's also not possible to import the exported CSV files back into the GUI yet.
 
 
 # Compatible File Types
@@ -36,7 +42,7 @@ The CHS database is extensive and diverse, but each filename has 7 identifiers s
 
 The examples listed above yield the filename `CHS-LA_TS_SimBrfc_Post0_Nodes_Hm0_AEF.h5`.
 
-As of December 2024, the following identifiers are compatible with the corresponding functions. For example, any filename with `Post0` in ID #4 (`X_X_X_Post0_X_X_X.h5`) can be imported to the GUI for preview and filtering ("Import & Export"), but any filename with `Post96RT` in ID #4 (`X_X_X_Post96RT_X_X_X.h5`) can only be exported as a CSV file ("Export Only"). **NOTE**: There are some problems with importing certain files on macOS, but they can still be exported. You can submit an issue.
+As of December 2024, the following identifiers are compatible with the corresponding functions. For example, any filename with `Post0` in ID #4 (`X_X_X_Post0_X_X_X.h5`) can be imported to the GUI for preview and filtering ("Import & Export"), but any filename with `Post96RT` in ID #4 (`X_X_X_Post96RT_X_X_X.h5`) can only be exported as a CSV file ("Export Only"). **NOTE**: There are some problems with importing certain files on macOS, but they can still be exported. You can submit an issue if this happens.
 
 ID # | Import & Export | Export Only
 :----|:---------------------------------------------------------------------------|:---------------------
@@ -48,41 +54,38 @@ ID # | Import & Export | Export Only
 6    | All
 7    | `AEF`\*, `AEFcond`\*, `AEP`, `Locations`, `Peaks`, `STcond`, `Timeseries` | `NLR`, `Params`, `SRR`
 
-\* Yields multiple datasets and CSV files.
+\* Yields multiple datasets and CSV files when ID #1 is `NACCS` or `SACSNCSEFL`.
 
 In the Qualifying Files group of the Convert tab, the GUI will auto-remove checkboxes for files that cannot be imported to the GUI.
 
 
 # The CMD Method
-This exports one HDF5 file into one or more CSV files from the command line.
+Exports multiple HDF5 or ZIP file into CSV file(s). This can also scan a directory for HDF5 files, including in all subdirectories.
 
 * Requirements
     * The file `code01_h5organize.py`.
     * The complete filepath of the HDF5 file to export.
     * Packages [numpy](https://pypi.org/project/numpy/) and [pandas](https://pypi.org/project/pandas/) for data handling.
-    * Package [chime](https://pypi.org/project/chime/) for notifications.
 
 * Instructions
     * Open the command line from the program directory.
         * Ex. `C:\Users\Cyvu37\Documents\CHS_HDF5_Converter`
-    * Input `python code01_h5organize.py` followed by the complete filepath of the HDF5 file 
-        * Ex. `python code01_h5organize.py "C:\Users\Cyvu37\Documents\HDF5 Files\One_Two_Three_Four_Five_Six_Seven.h5"`
+    * Input `python code01_h5organize.py` followed by the complete file or folder path(s).
+        * One HDF5 file: `python code01_h5organize.py "C:\Users\Cyvu37\Documents\HDF5 Files\One_Two_Three_Four_Five_Six_Seven.h5"`
+        * One ZIP file: `python code01_h5organize.py "C:\Users\Cyvu37\Documents\HDF5 Files\myzip.zip"`
+        * One folder: `python code01_h5organize.py "C:\Users\Cyvu37\Documents\HDF5 Files"`
+        * One ZIP file and one HDF5 file: `python code01_h5organize.py "C:\myzip.zip" "C:\Users\Cyvu37\Downloads\One_Two_Three_Four_Five_Six_Seven.h5"`
     * Press Enter.
 
 * Limitations
-    * Can't handle ZIP files or multiple HDF5 files.
     * No filtering or plotting capabilities.
 
 
 # The GUI Method
-This handles all features of the program, including exporting, previewing, filtering, and graphing HDF5 files. Some features only apply to specific file types. Features are listed [here](#features-of-data-viewer).
+Handles all features of the program, including exporting, previewing, filtering, and graphing HDF5 files. Some features only apply to specific file types. Features are listed [here](#features-of-data-viewer).
 
-* Requirements
-    * All files from this project.
-    * [numpy](https://pypi.org/project/numpy/) and [pandas](https://pypi.org/project/pandas/) for data handling.
-    * [chime](https://pypi.org/project/chime/) for notifications.
-    * [PySide6](https://pypi.org/project/PySide6/) for GUI and multithreading.
-    * [plotly](https://pypi.org/project/plotly/) and [kaleido](https://pypi.org/project/kaleido/) for plotting data (GUI only).
+* Requirements:
+    * All files from this project and all packages from `requirements.txt`.
     * HDF5 files or ZIP files containing HDF5 files.
 
 

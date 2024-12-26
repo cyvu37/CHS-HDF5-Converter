@@ -103,9 +103,8 @@ class H5_Organized_New:
     is_aef_special = False
     is_locations = False
     more_steps = 0
-
     h5s = None
-    df_normal = {}
+    
     df_current: pd.DataFrame
     df_full: pd.DataFrame
     is_cmd: bool
@@ -130,6 +129,7 @@ class H5_Organized_New:
         will_export: Boolean for exporting the dataset right after conversion.
         is_cmd: Boolean for running this file from the command line (`True`) or the GUI (`False`).
         """
+        self.df_normal = {}
         self.fpath = fpath
         x = fpath.split(";")[1] if ";" in fpath else fpath
         self.name = os.path.basename(x).split(".")[-2]
@@ -140,6 +140,12 @@ class H5_Organized_New:
         if will_export and not is_cmd: self.more_steps = 2  #    Exporting from GUI.
         elif will_export or not is_cmd: self.more_steps = 1 # 1) Exporting from CMD. 2) Only importing to GUI.
 
+        # Extract info from filename.
+        f_split = self.name.split("_")
+        self.fileType = f_split[-1]
+        self.is_timeseries = self.fileType == "Timeseries"
+        self.is_plottable = self.fileType in ["Peaks", "Timeseries"]
+
         if ";" in fpath:
             fs = fpath.split(";")
             with ZipFile(fs[0]) as z:
@@ -148,12 +154,6 @@ class H5_Organized_New:
         else:
             f = fpath
         h5 = h5py.File( f, 'r' )
-
-        # Extract info from filename.
-        f_split = self.name.split("_")
-        self.fileType = f_split[-1]
-        self.is_timeseries = self.fileType == "Timeseries"
-        self.is_plottable = self.fileType in ["Peaks", "Timeseries"]
 
         # Extract info.
         fileKeys = list(h5.keys())
@@ -246,12 +246,13 @@ class H5_Organized_New:
         grup_cols = ["Storm ID", "Storm Name", "Storm Type"] # Sorting attributes.
         vars_time = ["Landfall Time", "Peak Time"]
         vars_other = [x for x in fileKeys if x not in [*file_cols, *grup_cols, *vars_time]]
-        vars = [*vars_other, "yyyymmddHHMM"]
         print(f"LENGTH: {4 + self.more_steps}")
 
         # Extract and scale desired file attributes.
         n = len(list(first_val))
+        print(self.df_normal.keys())
         self.df_normal.update({ key:np.repeat( fileAttrs[key].astype(D_COLTYPES[key]), n ) for key in file_cols })
+        print(self.df_normal.keys())
         print(f"STATUS: 1", end=self.end_print)
         # Extract desired group attributes.
         self.df_normal["Storm ID"] = h5["Storm ID"].astype(int)[:]
@@ -276,8 +277,6 @@ class H5_Organized_New:
             self.df_normal["Landfall Time"] = t + l
             self.df_normal["Peak Time"]     = p
             self.df_normal["yyyymmddHHMM"]  = self.df_normal["Landfall Time"] - p
-        else:
-            vars = vars[:-1]
         print("STATUS: 3", end=self.end_print)
 
         # Get global mins and maxes.
@@ -290,8 +289,8 @@ class H5_Organized_New:
             print("STATUS: 4", end=self.end_print)
 
         # Laminate!
-        for x in self.df_normal.keys():
-            print(len(self.df_normal[x]))
+        """for x in self.df_normal.keys():
+            print(x)"""
         self.df_normal = pd.DataFrame(self.df_normal)
         self._laminate(f"STATUS: {4 if self.is_cmd else 5}")
     
@@ -330,6 +329,7 @@ class H5_Organized_New:
         ---
         h5_org: The parent H5_Organized object.
         """
+        self.df_normal = {}
         group = g
         self.is_aef_special = True
         self.name = name_mod
@@ -660,7 +660,7 @@ class H5_Organized_New:
         arr: The array of date-time values.
         """
         all_nan = True
-        try: all_nan = np.isnan(arr).all() # NOTE: Is this all that's needed??
+        try: all_nan = np.isnan(arr).all() # DEV NOTE: Is this all that's needed??
         except:
             try: all_nan = all(np.isnan( np.array(arr, float) ))
             except: all_nan = all([x == np.nan for x in arr])
@@ -773,8 +773,8 @@ class H5_Organized_New:
 
 
 
-def func_processFile(fpath: str):
-    print(f"\nConverting {fpath}")
+def func_processFile(fpath: str, msg: str):
+    print(f"\n{msg}: Converting {fpath}")
     t1 = time.time()
     h5 = H5_Organized_New()
     h5.run( fpath, True, True )
@@ -797,17 +797,23 @@ if len(sys.argv) > 1:
     # Running from command line.
     else:
         # Process all files.
-        chime.theme('material')
-        print("Running the CHS HDF5 Converter...\n")
+        print("\nRunning the CHS HDF5 Converter...\n")
         for fpath in sys.argv[1:]:
             ftype = fpath.split(".")[-1]
             if ftype == "h5":
-                func_processFile(fpath)
+                func_processFile( fpath, "1 HDF5 file" )
             elif ftype == "zip":
                 with ZipFile(fpath) as czip:
                     for subf in czip.namelist():
                         if subf.split(".")[-1] == "h5":
-                            func_processFile(f"{fpath};{subf}")
+                            func_processFile( f"{fpath};{subf}", "1 ZIP file" )
+            elif os.path.isdir(fpath):  # Folder.
+                lst = []
+                for (root, dirs, files) in os.walk(fpath):
+                    if len(files) > 0:
+                        lst.extend( [os.path.join(root, f) for f in files if f.split(".")[-1] == "h5"] )
+                print(f"CONVERTING {str(len(lst))} FILES")
+                for f in lst:
+                    func_processFile( f, "All dir + subdirs (HDF5 only)" )
             else:
-                print(f"\nIncompatible file: {fpath}")
-        chime.success()
+                print(f"\nIncompatible file or folder: {fpath}")
