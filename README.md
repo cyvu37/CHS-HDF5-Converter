@@ -1,7 +1,9 @@
-<p align="center"><img src="resources/CHS%20HDF5%20Converter%20logo%202.png" alt="drawing" width="200"/></p>
+<p align="center"><img src="resources/CHS%20HDF5%20Converter%20logo%202.png" alt="The CHS HDF5 Converter logo" width="200"/></p>
 
 # About
-The **CHS HDF5 Converter** is a Python GUI for converting HDF5 files from the [Coastal Hazards System](https://chs.erdc.dren.mil/Home/Library) (CHS) database into a table/CSV format (aka a dataset) while preserving some, but not all, of the original file's metadata. There are two methods labeled the Command Line (CMD) method and the GUI method. [The CMD method](#the-cmd-method) converts HDF5 and ZIP files directly from the command line, including folders containing HDF5 files. [The GUI method](#the-gui-method) allows many more functions such as previewing, filtering, and plotting multiple HDF5 files. All CSV files produced by the app will be saved in the directory above the program's Python files.
+The **CHS HDF5 Converter** is a Python GUI for converting HDF5 files from the [Coastal Hazards System](https://chs.erdc.dren.mil/Home/Library) (CHS) database into a table/CSV format (aka a dataset) while preserving some, but not all, of the original file's metadata. Target audience: USACE staff.
+
+There are two methods labeled the Command Line (CMD) method and the GUI method. [The CMD method](#the-cmd-method) converts HDF5 and ZIP files directly from the command line, including folders containing HDF5 files. [The GUI method](#the-gui-method) allows many more functions such as previewing, filtering, and plotting multiple HDF5 files. All CSV files produced by the app will be saved in the directory above the program's Python files.
 
 
 # Installation
@@ -9,16 +11,12 @@ The **CHS HDF5 Converter** is a Python GUI for converting HDF5 files from the [C
 1. **Python Interpreter & Environment**
     * Compatible versions: 3.11, 3.12, 3.13
     * This documentation will assume the Python CMD call function is `python`.
-1. **Download Files**: Assign a directory specifically for the files of this program (ex. `C:\Users\Cyvu37\Documents\CHS_HDF5_Converter`). 
+1. **Download Program Files**: Assign a directory specifically for the files of this program (ex. `C:\Users\Cyvu37\Documents\CHS_HDF5_Converter`). 
     * Make sure the parent directory of the program directory (ex. `C:\Users\Cyvu37\Documents`) doesn't require administrator access. Converting HDF5 files requires creating a temporary subdirectory *Extracted*.
     * Processing power may vary based on the directory's location.
 1. **Install Packages**
     * Option 1: Auto-install packages by running the GUI: `python begin.py`.
     * Option 2: Run `python -m pip install -r requirements.txt`.
-
-
-# The GUI
-
 
 
 # Export vs Import
@@ -77,11 +75,14 @@ Exports multiple HDF5 or ZIP file into CSV file(s). This can also scan a directo
         * One ZIP file and one HDF5 file: `python code01_h5organize.py "C:\myzip.zip" "C:\Users\Cyvu37\Downloads\One_Two_Three_Four_Five_Six_Seven.h5"`
     * Press Enter.
 
-* Limitations
-    * No filtering or plotting capabilities.
+<p align="center"><img src="resources/CMD_Input.png" alt="The CMD method: File list"/></p>
+<p align="center"><img src="resources/CMD_Output.png" alt="The CMD method: CMD output"/></p>
 
 
 # The GUI Method
+
+<p align="center"><img src="resources/GUI%2001.png" alt="The GUI initialized."/></p>
+
 Handles all features of the program, including exporting, previewing, filtering, and graphing HDF5 files. Some features only apply to specific file types. Features are listed [here](#features-of-data-viewer).
 
 * Requirements:

@@ -134,8 +134,6 @@ class SecondThread(QThread):
             if isinstance(fpath, list):
                 fpath = ";".join(fpath)
                 has_zip = True
-            print(fname)
-            print(fpath)
             self.filename = fname.split(".")[0].split("/")[-1]
 
             self.h5 = None

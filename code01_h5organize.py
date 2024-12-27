@@ -15,8 +15,17 @@ import itertools, os, pickle, shutil, sys, time
 from copy import deepcopy
 from zipfile import ZipFile
 from datetime import timedelta
+from subprocess import Popen
+from platform import system
 
-import chime, h5py
+# Set command to open a directory.
+od_dict = {
+    "Windows": "explorer", 
+    "Darwin": "open"
+}
+open_directory = od_dict[system()] if system() in od_dict else "xdg-open"
+
+import h5py
 import numpy as np
 import pandas as pd
 from PySide6.QtCore import (Qt, QAbstractTableModel, QDateTime, Signal)
@@ -779,6 +788,8 @@ def func_processFile(fpath: str, msg: str):
     h5 = H5_Organized_New()
     h5.run( fpath, True, True )
     print(f"\nTime elapsed: {str(timedelta(seconds = time.time() - t1))}")
+    t = f"Output saved in {DIR_RESULTS}"
+    print(t)
 
 
 
@@ -796,24 +807,40 @@ if len(sys.argv) > 1:
 
     # Running from command line.
     else:
+        print("\nRunning the CHS HDF5 Converter: The CMD Method...\n")
+        # Open results folder.
+        x = Popen( [open_directory, DIR_RESULTS] )
+        time.sleep(1)
+        x.kill()
+
         # Process all files.
-        print("\nRunning the CHS HDF5 Converter...\n")
         for fpath in sys.argv[1:]:
             ftype = fpath.split(".")[-1]
+            
+            # Process 1 HDF5 file.
             if ftype == "h5":
                 func_processFile( fpath, "1 HDF5 file" )
+            
+            # Process 1 ZIP file.
             elif ftype == "zip":
                 with ZipFile(fpath) as czip:
+                    # Find HDF5 file path within ZIP file.
                     for subf in czip.namelist():
                         if subf.split(".")[-1] == "h5":
                             func_processFile( f"{fpath};{subf}", "1 ZIP file" )
-            elif os.path.isdir(fpath):  # Folder.
+            
+            # Process a directory of HDF5 files throughout all subdirectories.
+            elif os.path.isdir(fpath):
+                # Find all compatible files.
                 lst = []
                 for (root, dirs, files) in os.walk(fpath):
                     if len(files) > 0:
                         lst.extend( [os.path.join(root, f) for f in files if f.split(".")[-1] == "h5"] )
-                print(f"CONVERTING {str(len(lst))} FILES")
+                # Process files.
+                print(f"Directory (HDF5): CONVERTING {str(len(lst))} FILES")
                 for f in lst:
-                    func_processFile( f, "All dir + subdirs (HDF5 only)" )
+                    func_processFile( f, "Directory (HDF5)" )
+            
+            # Invalid input.
             else:
                 print(f"\nIncompatible file or folder: {fpath}")
